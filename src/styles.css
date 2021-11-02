@@ -1,0 +1,192 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+    Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mainWrapper {
+  margin-bottom: 15px;
+  width: 30em;
+  align-content: center;
+}
+
+.fillColor {
+  fill: blue;
+}
+
+.fillColor1 {
+  fill: lightblue;
+}
+
+.emptyColor {
+  background-color: grey;
+}
+
+.dayWrapper1 {
+  width: 200px;
+  height: 50px;
+}
+
+.fullWidth {
+  width: 50% !important;
+}
+
+.wrapperBorder {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #dcdcdc;
+}
+
+.wrapperShadow {
+  border-radius: 10px;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.subWrapperShadow {
+  border-radius: 4px;
+  width: 12em;
+  height: 3.5em;
+  padding-top: 0.6em;
+  padding-bottom: 0.2em;
+  display: inline-block;
+}
+
+.react-calendar-heatmap {
+  /* width: 500px; */
+  /* width: 200px; */
+  width: 100% !important;
+  align-content: center;
+}
+
+/* .react-calendar-heatmap rect {
+  width: 10px;
+  height: 5px;
+} */
+
+.react-calendar-heatmap .color-filled {
+  fill: #0235ff !important;
+}
+
+.react-calendar-heatmap .color-filled1 {
+  fill: #718eff !important;
+}
+
+.react-calendar-heatmap .color-light {
+  fill: #ffa07a !important;
+}
+
+.react-calendar-heatmap .color-medium {
+  fill: #fa8072 !important;
+}
+
+.react-calendar-heatmap .color-high {
+  fill: #ff0000 !important;
+}
+
+.react-calendar-heatmap .color-empty {
+  fill: #ededed;
+}
+
+.cardDiv2 {
+  border-style: solid;
+  border-width: 1px;
+  /* border-color: #191970; */
+  border-color: #707070;
+}
+
+.cardDiv1 {
+  border-style: solid;
+  border-width: 0.2px;
+  border-color: white;
+  width: 270px;
+  height: 20px;
+  float: right;
+  position: relative;
+}
+
+.divPrevNext {
+  border-style: solid;
+  border-width: 1px;
+  border-color: white;
+  float: left;
+  position: relative;
+  width: 28px;
+  height: 24px;
+  background-image: linear-gradient(#717d7e, #f7f9f9);
+  box-shadow: 1px 1px 0.5px grey;
+}
+
+.divPrevNext img:hover {
+  opacity: 0.5;
+}
+
+.dashBoardDiv {
+  margin-top: 2px;
+  margin-left: 2px;
+  margin-right: 2px;
+  height: 4.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #488a99;
+  background-color: #488a99;
+}
+
+.cardLabel {
+  font-family: Arial;
+  font-size: 15px;
+  font-weight: 500;
+  color: #191970;
+}
+
+.dashBoardLabel {
+  font-family: Arial;
+  font-size: 30px;
+  font-weight: bold;
+  color: white;
+}
+
+.bar {
+  margin-top: 2em;
+  margin-left: -10px;
+  height: 27em;
+  width: 45em;
+  background-color: rgba(0, 0, 0, 0); /* rgba(0, 0, 0, 0.01)*/
+  padding: 15px;
+}
+
+.float-container {
+  border: 3px solid #fff;
+  padding-top: 1px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.item-card {
+  transition: 0.5s;
+  cursor: pointer;
+  /* overflow-y: auto; */
+}
+
+.card:hover {
+  /* transform: scale(1.05); */
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.centerDivContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  opacity: 0.5;
+}
