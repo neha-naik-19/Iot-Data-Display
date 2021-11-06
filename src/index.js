@@ -298,6 +298,13 @@ class App extends Component {
       // console.log("pageNum : ", pageNum);
 
       let pageNumCopy = pageNum;
+
+      if (pageNumCopy > 0) {
+        if (!this.state.loading) {
+          this.setState({ loading: true });
+        }
+      }
+
       while (pageNumCopy !== 0) {
         let itemData = await this.getApiDataPageWise(
           pageNum,
@@ -334,7 +341,7 @@ class App extends Component {
             JSON.stringify(otherMonthPageNum)
           );
 
-          this.setState({ iotItems: data });
+          this.setState({ iotItems: data, loading: false });
           break;
         } else {
           getOtherMonthData = getItemsData.filter(
@@ -436,6 +443,12 @@ class App extends Component {
           pageNumCopy = apiCurPageNum;
           this.setState({ iotItems: [] });
 
+          if (pageNumCopy > 0) {
+            if (!this.state.loading) {
+              this.setState({ loading: true });
+            }
+          }
+
           while (pageNumCopy !== 0) {
             if (otherMonthPageNum !== undefined) {
               if (otherMonthPageNum.length > 0) {
@@ -481,7 +494,8 @@ class App extends Component {
                 JSON.stringify(otherMonthPageNum)
               );
 
-              this.setState({ iotItems: data });
+              this.setState({ iotItems: data, loading: false });
+
               break;
             } else {
               getOtherMonthData = getItemsData.filter(
@@ -567,6 +581,12 @@ class App extends Component {
           pageNumCopy = apiCurPageNum;
           this.setState({ iotItems: [] });
 
+          if (pageNumCopy > 0) {
+            if (!this.state.loading) {
+              this.setState({ loading: true });
+            }
+          }
+
           while (pageNumCopy !== 0) {
             if (otherMonthPageNum !== undefined) {
               if (otherMonthPageNum.length > 0) {
@@ -612,7 +632,7 @@ class App extends Component {
                 JSON.stringify(otherMonthPageNum)
               );
 
-              this.setState({ iotItems: data });
+              this.setState({ iotItems: data, loading: false });
 
               break;
             } else {
@@ -1041,6 +1061,8 @@ class App extends Component {
       //   console.log(result.roomtemp);
       // });
 
+      console.log("showSpinner : ", this.state.loading);
+
       showSpinner = this.state.loading ? (
         <div className="d-flex justify-content-center">
           <div
@@ -1073,11 +1095,11 @@ class App extends Component {
               <tbody>
                 <tr>
                   <td
-                    className="wrapperBorder"
+                    className="wrapperBorder tempTdHeight"
                     style={{
                       borderRadius: 4,
                       width: "35em",
-                      height: "3.5em",
+                      // height: "3.5em",
                       paddingTop: "0.2em",
                       paddingBottom: "0.2em",
                       marginRight: 20,
@@ -1098,7 +1120,7 @@ class App extends Component {
                     ></Temp>
                   </td>
                   <td
-                    className="wrapperBorder subWrapperShadow"
+                    className="wrapperBorder subWrapperShadow tempTdHeight"
                     style={{ backgroundColor: "#eeece7" }}
                   >
                     <Temp
@@ -1117,7 +1139,7 @@ class App extends Component {
                     ></Temp>
                   </td>
                   <td
-                    className="wrapperBorder subWrapperShadow"
+                    className="wrapperBorder subWrapperShadow tempTdHeight"
                     style={{ backgroundColor: "#eeece7" }}
                   >
                     <Temp
@@ -1136,7 +1158,7 @@ class App extends Component {
                     ></Temp>
                   </td>
                   <td
-                    className="wrapperBorder subWrapperShadow"
+                    className="wrapperBorder subWrapperShadow tempTdHeight"
                     style={{ backgroundColor: "#eeece7" }}
                   >
                     <Temp
@@ -1157,13 +1179,16 @@ class App extends Component {
             <table>
               <tbody>
                 <tr>
-                  <td style={{ width: 160, paddingRight: 10 }}>
+                  <td
+                    className="dropDownHeight"
+                    style={{ width: 160, paddingRight: 10 }}
+                  >
                     <Select
                       selectAc={this.selectAc}
                       isLoading={this.state.loading}
                     />
                   </td>
-                  <td style={{ width: 160 }}>
+                  <td className="dropDownHeight" style={{ width: 160 }}>
                     <SelectTemp
                       selectTemp={this.selectTemp}
                       isLoading={this.state.loading}

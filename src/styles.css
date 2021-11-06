@@ -17,7 +17,7 @@ a {
 
 .mainWrapper {
   margin-bottom: 15px;
-  width: 30em;
+  /* width: 30em; */
   align-content: center;
 }
 
@@ -56,7 +56,7 @@ a {
 .subWrapperShadow {
   border-radius: 4px;
   width: 12em;
-  height: 3.5em;
+  /* height: 3.5em; */
   padding-top: 0.6em;
   padding-bottom: 0.2em;
   display: inline-block;
@@ -133,9 +133,8 @@ a {
 
 .dashBoardDiv {
   margin-top: 2px;
-  margin-left: 2px;
-  margin-right: 2px;
-  height: 4.5em;
+  margin-left: 3px;
+  margin-right: 3px;
   border-style: solid;
   border-width: 1px;
   border-color: #488a99;
@@ -157,10 +156,6 @@ a {
 }
 
 .bar {
-  margin-top: 2em;
-  margin-left: -10px;
-  height: 27em;
-  width: 45em;
   background-color: rgba(0, 0, 0, 0); /* rgba(0, 0, 0, 0.01)*/
   padding: 15px;
 }
@@ -189,4 +184,124 @@ a {
   align-items: center;
   flex-direction: column;
   opacity: 0.5;
+}
+
+.react-calendar-heatmap .react-calendar-heatmap-small-text {
+  font-size: 1.9px;
+  font-family: Arial;
+  fill: #00008b;
+}
+
+/*********** line **************************/
+@media only screen and (max-width: 1366px) {
+  .line {
+    top: 4.1em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .line {
+    top: 4.9em;
+  }
+}
+
+/*********** NarBar Div **************************/
+@media only screen and (max-width: 1366px) {
+  .dashBoardNavHeight {
+    height: 4.5em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .dashBoardNavHeight {
+    height: 5.5em;
+  }
+}
+
+/*********** Bar **************************/
+
+@media only screen and (max-width: 1366px) {
+  .barChartDisplay {
+    height: 27em;
+    margin-left: -10px;
+    width: 45em;
+    margin-top: 2em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .barChartDisplay {
+    height: 32em;
+    width: 42em;
+    margin-left: 8px;
+    margin-top: 4em;
+  }
+}
+
+/*********** Calendar **************************/
+
+@media only screen and (max-width: 1366px) {
+  .calendarDisplay {
+    margin-top: 10px;
+    width: 30em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .calendarDisplay {
+    margin-top: 20px;
+    width: 28em;
+  }
+}
+
+@media only screen and (max-width: 1366px) {
+  .calendarHeight1 {
+    height: 23em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .calendarHeight1 {
+    height: 27em;
+  }
+}
+
+@media only screen and (max-width: 1366px) {
+  .calendarHeight2 {
+    height: 27em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .calendarHeight2 {
+    height: 31em;
+  }
+}
+
+/*********** Temp. td **************************/
+
+@media only screen and (max-width: 1366px) {
+  .tempTdHeight {
+    height: 3.5em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .tempTdHeight {
+    height: 3.9em;
+  }
+}
+
+/*********** Drop Down **************************/
+
+@media only screen and (max-width: 1366px) {
+  .dropDownHeight {
+    height: 3.5em;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .dropDownHeight {
+    height: 3.7em;
+  }
 }

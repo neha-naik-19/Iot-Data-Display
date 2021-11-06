@@ -62,13 +62,17 @@ class Calendar extends Component {
     return (
       <div>
         <div
-          className="mainWrapper wrapperBorder wrapperShadow"
+          className={`mainWrapper wrapperBorder wrapperShadow calendarDisplay ${
+            this.props.getWeekOfMonth() === true
+              ? "calendarHeight1"
+              : "calendarHeight2"
+          }`}
           style={{
-            marginTop: 10,
+            // marginTop: 10,
             paddingLeft: 10,
             paddingTop: 10,
             flex: 1,
-            height: this.props.getWeekOfMonth() === true ? "23em" : "27em",
+            // height: this.props.getWeekOfMonth() === true ? "23em" : "27em",
             backgroundColor: "#fdfdfb",
           }}
         >

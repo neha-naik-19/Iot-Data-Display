@@ -189,7 +189,7 @@ class perDayTemp extends Component {
 
     return (
       <div
-        className="bar card item-card card-block card-text"
+        className="bar barChartDisplay card item-card card-block card-text"
         style={{
           // visibility: "visible",
           backgroundColor: "#f2f4f4",

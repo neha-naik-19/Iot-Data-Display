@@ -1,9 +1,10 @@
 import React, { Component } from "react";
+import { StyleSheet, css } from "aphrodite";
 
 class NavBar extends Component {
   render() {
     return (
-      <div className="dashBoardDiv">
+      <div className="dashBoardDiv dashBoardNavHeight">
         <div style={{ paddingLeft: 30, paddingTop: 4 }}>
           <img
             style={{ paddingRight: 20 }}
@@ -14,12 +15,14 @@ class NavBar extends Component {
         </div>
 
         <img
+          className="line"
           style={{
-            height: 4,
-            width: 470,
-            position: "relative",
-            bottom: 6,
-            left: 805,
+            height: "4px",
+            width: "470px",
+            position: "absolute",
+            left: "auto",
+            right: 0,
+            paddingRight: "6px",
           }}
           src="../images/bits-line.gif"
         />
