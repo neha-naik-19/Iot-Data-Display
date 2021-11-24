@@ -305,3 +305,9 @@ a {
     height: 3.7em;
   }
 }
+
+.react-calendar-heatmap .react-calendar-heatmap-small-text {
+  font-size: 1.9px;
+  font-family: Arial;
+  fill: #00008b;
+}
