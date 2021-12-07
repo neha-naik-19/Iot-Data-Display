@@ -18,12 +18,12 @@ const temp = ({ currentDateLastItemTemp, tempVal, current, externalTemp }) => {
   }
 
   if (tempVal == "01") {
-    imgOutPut = <img src="../images/acTemperature.png" />;
+    imgOutPut = <img src={process.env.PUBLIC_URL + "/acTemperature.png"} />;
   } else if (tempVal == "02") {
-    imgOutPut = <img src="../images/electricity.png" />;
+    imgOutPut = <img src={process.env.PUBLIC_URL + "/electricity.png"} />;
   } else if (tempVal == "03") {
     if (current === 0) {
-      imgOutPut = <img src="../images/humidity.png" />;
+      imgOutPut = <img src={process.env.PUBLIC_URL + "/humidity.png"} />;
     }
   }
 
@@ -55,7 +55,10 @@ const temp = ({ currentDateLastItemTemp, tempVal, current, externalTemp }) => {
             }}
           >
             <span style={{ width: 10 }}>
-              <img style={{ marginRight: 7 }} src="../images/weather.png" />
+              <img
+                style={{ marginRight: 7 }}
+                src={process.env.PUBLIC_URL + "/weather.png"}
+              />
             </span>
             <span style={{ fontWeight: "bold", color: "#2F4F4F" }}>Today</span>
           </ul>

@@ -94,8 +94,9 @@ class Calendar extends Component {
               }}
             >
               <img
+                id="prevImg"
                 style={{ marginTop: -4, marginLeft: 4 }}
-                src="../images/previous_icon.png"
+                src={process.env.PUBLIC_URL + "/previous_icon.png"}
                 onClick={() => this.props.handlePrevious()}
               />
             </div>
@@ -117,7 +118,7 @@ class Calendar extends Component {
                   marginTop: -4,
                   marginLeft: 4,
                 }}
-                src="../images/next_icon.png"
+                src={process.env.PUBLIC_URL + "/next_icon.png"}
                 onClick={() => this.props.handleNext()}
               />
             </div>

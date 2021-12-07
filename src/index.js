@@ -4,9 +4,9 @@ import App from "./App";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 ReactDOM.render(
-  <Router>
+  <Router basename={"/iotdashboard"}>
     <Routes>
-      <Route exact path="/dashboard" element={<App />} />
+      <Route path="/" element={<App />} />
     </Routes>
   </Router>,
   //<App />,

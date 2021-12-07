@@ -8,7 +8,7 @@ class NavBar extends Component {
         <div style={{ paddingLeft: 30, paddingTop: 4 }}>
           <img
             style={{ paddingRight: 20 }}
-            src="../images/BITS_Pilani-Goa-Logo.png"
+            src={process.env.PUBLIC_URL + "/BITS_Pilani-Goa-Logo.png"}
           />
 
           <label className="dashBoardLabel">Air Condition Dashboard</label>
@@ -24,7 +24,7 @@ class NavBar extends Component {
             right: 0,
             paddingRight: "6px",
           }}
-          src="../images/bits-line.gif"
+          src={process.env.PUBLIC_URL + "/bits-line.gif"}
         />
       </div>
     );
