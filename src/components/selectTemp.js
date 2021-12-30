@@ -10,12 +10,17 @@ class selectAc extends Component {
 
     if (!this.props.isLoading) {
       tempOptions = [
-        { value: "01", label: "Room Temp." },
-        { value: "02", label: "Electricity" },
-        { value: "03", label: "Humidity" },
+        { value: "01", label: "Room Temp.", disabled: false },
+        { value: "02", label: "Unit Consumption", disabled: false },
+        { value: "03", label: "Humidity", disabled: false },
       ];
     } else {
-      tempOptions = [{ value: "01", label: "Room Temp." }];
+      // tempOptions = [{ value: "01", label: "Room Temp." }];
+      tempOptions = [
+        { value: "01", label: "Room Temp.", disabled: true },
+        { value: "02", label: "Unit Consumption", disabled: true },
+        { value: "03", label: "Humidity", disabled: true },
+      ];
     }
 
     const colourStyles = {
@@ -48,6 +53,7 @@ class selectAc extends Component {
         options={tempOptions}
         styles={colourStyles}
         onChange={this.props.selectTemp}
+        isOptionDisabled={(option) => option.disabled}
       />
     );
   }

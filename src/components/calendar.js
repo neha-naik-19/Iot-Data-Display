@@ -61,196 +61,177 @@ class Calendar extends Component {
 
     return (
       <div>
-        <div
-          className={`mainWrapper wrapperBorder wrapperShadow calendarDisplay ${
-            this.props.getWeekOfMonth() === true
-              ? "calendarHeight1"
-              : "calendarHeight2"
-          }`}
-          style={{
-            // marginTop: 10,
-            paddingLeft: 10,
-            paddingTop: 10,
-            flex: 1,
-            // height: this.props.getWeekOfMonth() === true ? "23em" : "27em",
-            backgroundColor: "#fdfdfb",
-          }}
-        >
+        <div>
           <div>
-            <div>
-              <label className="cardLabel">
-                {moment(this.props.date).format("MMM YYYY")}
-              </label>
-            </div>
-
-            <div
-              id="divPrevious"
-              className="divPrevNext"
-              style={{
-                marginLeft: 65,
-                marginTop: -23,
-                borderTopLeftRadius: 8,
-                borderBottomLeftRadius: 8,
-              }}
-            >
-              <img
-                id="prevImg"
-                style={{ marginTop: -4, marginLeft: 4 }}
-                src={process.env.PUBLIC_URL + "/previous_icon.png"}
-                onClick={() => this.props.handlePrevious()}
-              />
-            </div>
-
-            <div
-              div="divNext"
-              className="divPrevNext"
-              style={{
-                marginLeft: 1,
-                marginTop: -23,
-                borderTopRightRadius: 8,
-                borderBottomRightRadius: 8,
-              }}
-            >
-              <img
-                style={{
-                  Width: "100%",
-                  Height: "100%",
-                  marginTop: -4,
-                  marginLeft: 4,
-                }}
-                src={process.env.PUBLIC_URL + "/next_icon.png"}
-                onClick={() => this.props.handleNext()}
-              />
-            </div>
-
-            <div
-              className="cardDiv1"
-              style={{ marginRight: 20, marginTop: -18 }}
-            >
-              {svgTempColor}
-            </div>
-            <div
-              className="cardDiv2"
-              style={{ marginRight: 20, marginTop: 5, marginBottom: 9 }}
-            ></div>
+            <label className="m-0 font-weight-bold text-primary">
+              {moment(this.props.date).format("MMM YYYY")}
+            </label>
           </div>
 
-          <CalendarHeatmap
-            key={1}
-            style={{ paddingBottom: 20 }}
-            startDate={this.props.shiftDate(this.props.firstDate, -1)}
-            endDate={this.props.lastDate}
-            values={this.props.iotDataPerMonth}
-            classForValue={(value) => {
-              if (value != null) {
-                if (this.props.tempType === "01") {
-                  if (value.temp === "") {
-                    return "color-empty";
-                  } else if (value.temp <= 18) {
-                    return "color-light";
-                  } else if (value.temp > 18 && value.temp <= 26) {
-                    return "color-medium";
-                  } else if (value.temp > 26) {
-                    return "color-high";
-                  }
-                } else if (this.props.tempType === "02") {
-                  if (value.temp === "") {
-                    return "color-empty";
-                  } else {
-                    return "color-filled1";
-                  }
-                } else if (this.props.tempType === "03") {
-                  if (value.temp === "") {
-                    return "color-empty";
-                  } else {
-                    return "color-filled1";
-                  }
+          <div
+            id="divPrevious"
+            className="divPrevNext"
+            style={{
+              marginLeft: 80,
+              marginTop: -23,
+              borderTopLeftRadius: 8,
+              borderBottomLeftRadius: 8,
+            }}
+          >
+            <img
+              id="prevImg"
+              style={{ marginTop: -4, marginLeft: 4 }}
+              src={process.env.PUBLIC_URL + "/previous_icon.png"}
+              onClick={() => this.props.handlePrevious()}
+            />
+          </div>
+
+          <div
+            div="divNext"
+            className="divPrevNext"
+            style={{
+              marginLeft: 1,
+              marginTop: -23,
+              borderTopRightRadius: 8,
+              borderBottomRightRadius: 8,
+            }}
+          >
+            <img
+              style={{
+                Width: "100%",
+                Height: "100%",
+                marginTop: -4,
+                marginLeft: 4,
+              }}
+              src={process.env.PUBLIC_URL + "/next_icon.png"}
+              onClick={() => this.props.handleNext()}
+            />
+          </div>
+
+          <div className="cardDiv1" style={{ marginRight: 20, marginTop: -18 }}>
+            {svgTempColor}
+          </div>
+          <div
+            className="cardDiv2"
+            style={{ marginRight: 20, marginTop: 5, marginBottom: 9 }}
+          ></div>
+        </div>
+
+        <CalendarHeatmap
+          key={1}
+          style={{ paddingBottom: 20 }}
+          startDate={this.props.shiftDate(this.props.firstDate, -1)}
+          endDate={this.props.lastDate}
+          values={this.props.iotDataPerMonth}
+          classForValue={(value) => {
+            if (value != null) {
+              if (this.props.tempType === "01") {
+                if (value.temp === "") {
+                  return "color-empty";
+                } else if (value.temp <= 18) {
+                  return "color-light";
+                } else if (value.temp > 18 && value.temp <= 26) {
+                  return "color-medium";
+                } else if (value.temp > 26) {
+                  return "color-high";
+                }
+              } else if (this.props.tempType === "02") {
+                if (value.temp === "") {
+                  return "color-empty";
+                } else {
+                  return "color-filled1";
+                }
+              } else if (this.props.tempType === "03") {
+                if (value.temp === "") {
+                  return "color-empty";
+                } else {
+                  return "color-filled1";
                 }
               }
-            }}
-            tooltipDataAttrs={(value) => {
-              return {
-                "data-tip": `${moment(value.date).format("DD-MM-YYYY")}`,
-              };
-            }}
-            horizontal={false}
-            showWeekdayLabels={true}
-            showMonthLabels={false}
-            dayOfWeek={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]}
-            onClick={(value) => {
-              if (value.temp !== "") {
-                // alert(`Clicked on value with count: ${value.date}`);
-                this.props.barChartCalendarData(value.date);
-              } else {
-                this.props.barChartCalendarData(0);
-              }
-            }}
-            gutterSize={1}
-            transformDayElement={(element, value, index) => (
-              <g>
-                <text
-                  x={element["props"].x + 4}
-                  y={element["props"].y + -1.5}
-                  style={{
-                    fontSize: "0.14em",
-                    fill:
-                      value.date.setHours(0, 0, 0, 0) ===
-                      new Date().setHours(0, 0, 0, 0)
-                        ? "#046307"
-                        : "#000000",
-                    textAnchor: "middle",
-                    dominantBaseline: "middle",
-                    alignmentBaseline: "middle",
-                    fontWeight:
-                      value.date.setHours(0, 0, 0, 0) ===
-                      new Date().setHours(0, 0, 0, 0)
-                        ? "bold"
-                        : "normal",
-                  }}
-                >
-                  {value.date.getDate()}
-                </text>
-                {React.cloneElement(element, {
-                  width: "8%",
-                  height: 5,
-                  rx: 3,
-                  ry: 3,
-                })}
-                <text
-                  x={element["props"].x + 4}
-                  y={element["props"].y + 3}
-                  style={{
-                    cursor: "default",
-                    fontSize: "0.15em",
-                    fill:
-                      value.date.setHours(0, 0, 0, 0) ===
-                      new Date().setHours(0, 0, 0, 0)
-                        ? "#046307"
-                        : "#FFFF",
-                    textAnchor: "middle",
-                    dominantBaseline: "middle",
-                    alignmentBaseline: "middle",
-                    fontWeight:
-                      value.date.setHours(0, 0, 0, 0) ===
-                      new Date().setHours(0, 0, 0, 0)
-                        ? "bold"
-                        : "normal",
-                  }}
-                  onClick={() => {
-                    if (value.temp !== "") {
-                      this.props.barChartCalendarData(value.date);
-                    } else {
-                      this.props.barChartCalendarData(0);
-                    }
-                  }}
-                >
-                  {value.temp}
-                </text>
-              </g>
-            )}
-          />
-          <ReactTooltip />
-        </div>
+            }
+          }}
+          tooltipDataAttrs={(value) => {
+            return {
+              "data-tip": `${moment(value.date).format("DD-MM-YYYY")}`,
+            };
+          }}
+          horizontal={false}
+          showWeekdayLabels={true}
+          showMonthLabels={false}
+          dayOfWeek={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]}
+          onClick={(value) => {
+            if (value.temp !== "") {
+              // alert(`Clicked on value with count: ${value.date}`);
+              this.props.barChartCalendarData(value.date);
+            } else {
+              this.props.barChartCalendarData(0);
+            }
+          }}
+          gutterSize={1}
+          transformDayElement={(element, value, index) => (
+            <g>
+              <text
+                x={element["props"].x + 4}
+                y={element["props"].y + -1.5}
+                style={{
+                  fontSize: "0.14em",
+                  fill:
+                    value.date.setHours(0, 0, 0, 0) ===
+                    new Date().setHours(0, 0, 0, 0)
+                      ? "#046307"
+                      : "#000000",
+                  textAnchor: "middle",
+                  dominantBaseline: "middle",
+                  alignmentBaseline: "middle",
+                  fontWeight:
+                    value.date.setHours(0, 0, 0, 0) ===
+                    new Date().setHours(0, 0, 0, 0)
+                      ? "bold"
+                      : "normal",
+                }}
+              >
+                {value.date.getDate()}
+              </text>
+              {React.cloneElement(element, {
+                width: "8%",
+                height: 5,
+                rx: 3,
+                ry: 3,
+              })}
+              <text
+                x={element["props"].x + 4}
+                y={element["props"].y + 3}
+                style={{
+                  cursor: "default",
+                  fontSize: "0.15em",
+                  fill:
+                    value.date.setHours(0, 0, 0, 0) ===
+                    new Date().setHours(0, 0, 0, 0)
+                      ? "#046307"
+                      : "#FFFF",
+                  textAnchor: "middle",
+                  dominantBaseline: "middle",
+                  alignmentBaseline: "middle",
+                  fontWeight:
+                    value.date.setHours(0, 0, 0, 0) ===
+                    new Date().setHours(0, 0, 0, 0)
+                      ? "bold"
+                      : "normal",
+                }}
+                onClick={() => {
+                  if (value.temp !== "") {
+                    this.props.barChartCalendarData(value.date);
+                  } else {
+                    this.props.barChartCalendarData(0);
+                  }
+                }}
+              >
+                {value.temp}
+              </text>
+            </g>
+          )}
+        />
+        <ReactTooltip />
       </div>
     );
   }

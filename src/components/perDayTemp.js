@@ -3,7 +3,7 @@ import { Line } from "react-chartjs-2";
 import moment from "moment";
 
 class perDayTemp extends Component {
-  state = { displayColor: [] };
+  state = { displayColor: [], isMultiRender: false };
 
   backColor() {
     if (this.props.tempVal === "01") {
@@ -16,17 +16,24 @@ class perDayTemp extends Component {
     let dataColor = [];
     let chartLabel = "";
     let selectedDt = null;
+    let loading = true;
+    let showSpinner = "";
 
-    // console.log(this.props);
+    let outPut = "";
 
-    if (this.props.barChartData !== 0) {
+    showSpinner = loading ? (
+      <div className="spinner-border" role="status">
+        <span className="sr-only">Loading</span>
+      </div>
+    ) : (
+      ""
+    );
+
+    if (this.props.barChartData.length > 0) {
+      this.state.isMultiRender = true;
+
       this.props.barChartData.map((item) => {
-        labels.push(
-          // moment(
-          //   new Date(new Date(item.timeStamp).toUTCString().substr(0, 25))
-          // ).format("hh:mm A")
-          moment(new Date(item.timeStamp)).format("hh:mm A")
-        );
+        labels.push(moment(new Date(item.timeStamp)).format("hh:mm A"));
       });
 
       if (this.props.tempVal === "01") {
@@ -60,55 +67,31 @@ class perDayTemp extends Component {
           );
         });
       }
-    }
 
-    dataColor = [];
-    for (const cl in data) {
-      if (parseInt(data[cl]) < 60) {
-        dataColor.push("#718eff");
-      } else if (parseInt(data[cl]) >= 60) {
-        dataColor.push("#0235ff");
+      dataColor = [];
+      if (this.props.tempVal === "01") {
+        for (const cl in data) {
+          if (parseInt(data[cl]) <= 18) {
+            dataColor.push("#ffa07a");
+          } else if (parseInt(data[cl]) <= 26) {
+            dataColor.push("#fa8072");
+          } else if (parseInt(data[cl]) > 26) {
+            dataColor.push("#ff0000");
+          }
+        }
+      } else {
+        for (const cl in data) {
+          if (parseInt(data[cl]) < 60) {
+            dataColor.push("#718eff");
+          } else if (parseInt(data[cl]) >= 60) {
+            dataColor.push("#0235ff");
+          }
+        }
       }
-    }
 
-    let outPut = "";
-
-    if (
-      this.props.barChartData.length === 0 ||
-      this.props.barChartData.length === undefined
-    ) {
-      outPut = (
-        <div
-          style={{ height: "152em", border: "1px solid #fff" }}
-          className="centerDivContent"
-        >
-          <div
-            style={{
-              fontSize: 19,
-              family: "arial",
-              textAlign: "center",
-            }}
-          >
-            No Data to Display
-          </div>
-          <div
-            style={{
-              fontSize: 14,
-              family: "arial",
-              textAlign: "center",
-            }}
-          >
-            Please make a different filter selection
-          </div>
-        </div>
-      );
-    } else {
       selectedDt = this.props.barChartData
         .map((item) => {
           return {
-            // lastDt: new Date(
-            //   new Date(item.timeStamp).toUTCString().substr(0, 25)
-            // ),
             lastDt: new Date(item.timeStamp),
           };
         })
@@ -185,15 +168,14 @@ class perDayTemp extends Component {
           }}
         ></Line>
       );
+    } else {
+      outPut = <div>{showSpinner}</div>;
     }
 
     return (
       <div
-        className="bar barChartDisplay card item-card card-block card-text"
-        style={{
-          // visibility: "visible",
-          backgroundColor: "#f2f4f4",
-        }}
+        className="card-body d-flex justify-content-center align-items-center"
+        style={{ height: 520 }}
       >
         {outPut}
       </div>

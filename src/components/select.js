@@ -10,13 +10,18 @@ class selectAc extends Component {
 
     if (!this.props.isLoading) {
       acOptions = [
-        { value: "01", label: "D250AC01" },
-        { value: "02", label: "D250AC02" },
-        { value: "03", label: "D250AC03" },
-        { value: "04", label: "D250AC04" },
+        { value: "01", label: "D250AC01", disabled: false },
+        { value: "02", label: "D250AC02", disabled: false },
+        { value: "03", label: "D250AC03", disabled: false },
+        { value: "04", label: "D250AC04", disabled: false },
       ];
     } else {
-      acOptions = [{ value: "01", label: "D250AC01" }];
+      acOptions = [
+        { value: "01", label: "D250AC01", disabled: true },
+        { value: "02", label: "D250AC02", disabled: true },
+        { value: "03", label: "D250AC03", disabled: true },
+        { value: "04", label: "D250AC04", disabled: true },
+      ];
     }
 
     const colourStyles = {
@@ -49,7 +54,8 @@ class selectAc extends Component {
         options={acOptions}
         styles={colourStyles}
         onChange={this.props.selectAc}
-        autoFocus
+        isOptionDisabled={(option) => option.disabled}
+        // autoFocus
       />
     );
   }

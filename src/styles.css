@@ -262,7 +262,7 @@ a {
 
 @media only screen and (max-width: 1280px) {
   .calendarHeight1 {
-    height: 27em;
+    height: 35em;
   }
 }
 
@@ -310,4 +310,15 @@ a {
   font-size: 1.9px;
   font-family: Arial;
   fill: #00008b;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+}
+
+.react-datepicker__input-container {
+  padding-left: 10px;
+  display: flex !important;
+  flex-direction: column !important;
 }

@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.css";
 import Select from "./components/select";
 import SelectTemp from "./components/selectTemp";
 import Calendar from "./components/calendar";
 import NavBar from "./components/navbar";
-import PerDayTemp from "./components/perDayTemp";
 import Temp from "./components/temp";
+import TempTable from "./components/tempTable";
 
 import moment from "moment";
+
+import { getItemData } from "./components/userDefined";
 
 class App extends Component {
   state = {
@@ -24,11 +24,12 @@ class App extends Component {
     selectTempVal: "01",
     checkOnce: 1,
     loading: false,
+    type: "Monthly",
+    dataCurrent: [],
+    deviceIdCurrent: "",
+    apiCurPageNum: [],
+    otherMonthPageNum: [],
   };
-
-  componentWillUnmount() {
-    sessionStorage.remove();
-  }
 
   async componentDidMount() {
     try {
@@ -49,7 +50,7 @@ class App extends Component {
       );
 
       // let resp = await fetch(
-      //   "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22D250AC01%22}&max_results=1440&page=25"
+      //   "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22D250AC02%22}&max_results=1440&page=30"
       // );
       // let respData = await resp.text();
       // let respText = respData.replaceAll("NaN", "0");
@@ -72,13 +73,44 @@ class App extends Component {
       //   });
       // }
 
+      // itemDataToday = itemDataToday.map((i) => {
+      //   return {
+      //     deviceID: i.deviceID,
+      //     humidity: i.humidity,
+      //     roomtemp: i.roomtemp,
+      //     timeStamp: new Date(i.timeStamp.split(".")[0]).setHours(
+      //       new Date(i.timeStamp.split(".")[0]).getHours() + 5
+      //     ),
+      //   };
+      // });
+
+      // itemDataToday = itemDataToday.map((i) => {
+      //   return {
+      //     deviceID: i.deviceID,
+      //     humidity: i.humidity,
+      //     roomtemp: i.roomtemp,
+      //     timeStamp: new Date(i.timeStamp).setMinutes(
+      //       new Date(i.timeStamp).getMinutes() + 30
+      //     ),
+      //   };
+      // });
+
+      // itemDataToday = itemDataToday.map((i) => {
+      //   return {
+      //     deviceID: i.deviceID,
+      //     humidity: i.humidity,
+      //     roomtemp: i.roomtemp,
+      //     timeStamp: new Date(new Date(i.timeStamp)),
+      //   };
+      // });
+
       // itemDataToday = itemDataToday.sort((a, b) => {
       //   return (
       //     new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
       //   );
       // });
 
-      // console.log("17-11-2021 : ", itemDataToday);
+      // console.log("28-12-2021 : ", itemDataToday);
 
       let pageNumCopy = pageNum;
 
@@ -90,17 +122,7 @@ class App extends Component {
           0
         );
 
-        let getItemsData = itemData.map((i) => {
-          return {
-            id: i.id,
-            deviceID: i.deviceID,
-            humidity: i.humidity,
-            roomtemp: i.roomtemp,
-            unitConsumption: i.unitConsumption,
-            timeStamp: new Date(i.timeStamp).toUTCString().substr(0, 25),
-            externalTemp: i.externalTemp,
-          };
-        });
+        let getItemsData = getItemData(itemData);
 
         getSelectedMonthData = getItemsData.filter(
           (i) =>
@@ -118,7 +140,10 @@ class App extends Component {
             JSON.stringify(otherMonthPageNum)
           );
 
-          this.setState({ iotItems: data, loading: false });
+          this.setState({
+            iotItems: data,
+            loading: false,
+          });
 
           break;
         } else {
@@ -144,8 +169,11 @@ class App extends Component {
       }
 
       window.scrollTo(0, 0);
+      // window.location.reload(false);
+      // window.addEventListener("focus", this.onFocus);
     } catch (error) {
       console.log("Error Message: ", error);
+      sessionStorage.setItem("error", error);
     }
   }
 
@@ -165,6 +193,8 @@ class App extends Component {
         linksData = value;
       }
     });
+
+    sessionStorage.clear();
 
     if (linksData !== "") {
       linksData = Object.entries(apiJson["_links"]["last"]);
@@ -217,16 +247,12 @@ class App extends Component {
       deviceId +
       "%22}&max_results=1440&page=";
 
-    // console.log("otherPageNum : ", otherPageNum);
-
     if (checkOnce === 1) {
       if (otherPageNum !== undefined) {
         if (otherPageNum.length > 0) {
           for (let i = 0; i < otherPageNum.length; i++) {
             urlcopy = "";
             urlcopy = url + otherPageNum[i];
-
-            // console.log("otherPageData : ", urlcopy);
 
             otherPageData = await this.fetchData(urlcopy);
 
@@ -265,8 +291,6 @@ class App extends Component {
       if (checkOnce === 1) {
         itemsData = await this.fetchData(urlcopy);
 
-        // console.log("itemsData : ", urlcopy);
-
         for (const item in itemsData) {
           apiData.push({
             id: count++,
@@ -283,8 +307,6 @@ class App extends Component {
 
     if (checkOnce === 0 || checkOnce > 1) {
       itemsData = await this.fetchData(urlcopy);
-
-      // console.log("itemsData : ", urlcopy);
 
       for (const item in itemsData) {
         apiData.push({
@@ -309,17 +331,17 @@ class App extends Component {
       let data = [];
       let getOtherMonthData = [];
       let getSelectedMonthData = [];
-      let otherMonthPageNum = JSON.parse(
-        sessionStorage.getItem("otherMonthPageNum")
-      );
+      let otherMonthPageNum = [];
+
+      if (this.state.date.getMonth() + 1 !== new Date().getMonth() + 1) {
+        this.setState({ date: new Date() });
+      }
 
       var pageNum = await this.getApiData(
         "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
           options.label +
           "%22}&max_results=1440"
       );
-
-      // console.log("pageNum : ", pageNum);
 
       let pageNumCopy = pageNum;
 
@@ -337,17 +359,7 @@ class App extends Component {
           0
         );
 
-        let getItemsData = itemData.map((i) => {
-          return {
-            id: i.id,
-            deviceID: i.deviceID,
-            humidity: i.humidity,
-            roomtemp: i.roomtemp,
-            unitConsumption: i.unitConsumption,
-            timeStamp: new Date(i.timeStamp).toUTCString().substr(0, 25),
-            externalTemp: i.externalTemp,
-          };
-        });
+        let getItemsData = getItemData(itemData);
 
         getSelectedMonthData = getItemsData.filter(
           (i) =>
@@ -365,7 +377,10 @@ class App extends Component {
             JSON.stringify(otherMonthPageNum)
           );
 
-          this.setState({ iotItems: data, loading: false });
+          this.setState({
+            iotItems: data,
+            loading: false,
+          });
           break;
         } else {
           getOtherMonthData = getItemsData.filter(
@@ -387,6 +402,21 @@ class App extends Component {
           pageNum = pageNum - 1;
           data.push(getSelectedMonthData);
         }
+      }
+
+      console.log("iotItems : ", this.state.iotItems);
+
+      //get current date full data
+      if (this.state.iotItems.length > 0) {
+        this.setState({
+          curSeletedDate: this.state.iotData.filter(
+            (d) =>
+              new Date(d.timeStamp).setHours(0, 0, 0, 0) ===
+              new Date().setHours(0, 0, 0, 0)
+          ),
+        });
+      } else {
+        this.setState({ curSeletedDate: null });
       }
 
       window.scrollTo(0, 0);
@@ -413,7 +443,120 @@ class App extends Component {
     }
   };
 
+  calType = async (selVal) => {
+    this.setState({ type: selVal });
+
+    if (selVal === "Monthly") {
+      try {
+        let data = [];
+        let getOtherMonthData = [];
+        let getSelectedMonthData = [];
+        let otherMonthPageNum = [];
+        let devId = "";
+
+        if (sessionStorage.getItem("deviceId") === null) {
+          devId = [...this.state.deviceIdCurrent];
+        } else {
+          devId = sessionStorage.getItem("deviceId");
+        }
+
+        if (this.state.date.getMonth() + 1 !== new Date().getMonth() + 1) {
+          this.setState({ date: new Date() });
+        }
+
+        var pageNum = await this.getApiData(
+          "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
+            devId +
+            "%22}&max_results=1440"
+        );
+
+        let pageNumCopy = pageNum;
+
+        if (pageNumCopy > 0) {
+          if (!this.state.loading) {
+            this.setState({ loading: true });
+          }
+        }
+
+        while (pageNumCopy !== 0) {
+          let itemData = await this.getApiDataPageWise(
+            pageNum,
+            otherMonthPageNum,
+            devId,
+            0
+          );
+
+          let getItemsData = getItemData(itemData);
+
+          getSelectedMonthData = getItemsData.filter(
+            (i) =>
+              new Date(i["timeStamp"]).getMonth() + 1 ===
+              this.state.date.getMonth() + 1
+          );
+
+          if (getSelectedMonthData.length === 0) {
+            pageNumCopy = 0;
+
+            sessionStorage.setItem("deviceId", devId);
+            sessionStorage.setItem("apiCurPageNum", pageNum);
+            sessionStorage.setItem(
+              "otherMonthPageNum",
+              JSON.stringify(otherMonthPageNum)
+            );
+
+            this.setState({
+              iotItems: data,
+              loading: false,
+            });
+            break;
+          } else {
+            getOtherMonthData = getItemsData.filter(
+              (i) =>
+                new Date(i["timeStamp"]).getMonth() + 1 !==
+                this.state.date.getMonth() + 1
+            );
+
+            getOtherMonthData = getItemsData.filter(
+              (i) =>
+                new Date(i["timeStamp"]).getMonth() + 1 <
+                this.state.date.getMonth() + 1
+            );
+
+            if (getOtherMonthData.length > 0) {
+              otherMonthPageNum.push(pageNum);
+            }
+
+            pageNum = pageNum - 1;
+            data.push(getSelectedMonthData);
+          }
+        }
+
+        //get current date full data
+        this.setState({
+          curSeletedDate: this.state.iotData.filter(
+            (d) =>
+              new Date(d.timeStamp).setHours(0, 0, 0, 0) ===
+              new Date().setHours(0, 0, 0, 0)
+          ),
+        });
+
+        window.scrollTo(0, 0);
+      } catch (error) {
+        console.log("Error Message: ", error);
+      }
+    }
+  };
+
   render() {
+    //refresh app
+    const refreshPage = (e) => {
+      e.preventDefault();
+      sessionStorage.clear();
+      window.location.reload(false);
+    };
+
+    // console.log(plusSlides(5));
+
     //Get next month
     const handleNext = async () => {
       let curDate = null;
@@ -426,126 +569,119 @@ class App extends Component {
         sessionStorage.getItem("otherMonthPageNum")
       );
 
-      if (!this.state.loading) {
-        var nexMonth = new Date(
-          this.state.date.getFullYear(),
-          this.state.date.getMonth() + 1,
-          1
-        );
+      // if (!this.state.loading) {
+      var nexMonth = new Date(
+        this.state.date.getFullYear(),
+        this.state.date.getMonth() + 1,
+        1
+      );
 
-        let todayDate = new Date();
+      let todayDate = new Date();
 
-        if (
-          this.state.date.getMonth() + 2 <=
-            new Date(todayDate).getMonth() + 1 &&
-          nexMonth.getFullYear() === new Date(todayDate).getFullYear()
-        ) {
-          if (nexMonth.getMonth() + 1 === 1) {
-            curDate = new Date(nexMonth.getFullYear(), 0, 1);
-          } else {
-            curDate = new Date(nexMonth.getFullYear(), nexMonth.getMonth(), 1);
+      if (
+        this.state.date.getMonth() + 2 <= new Date(todayDate).getMonth() + 1 &&
+        nexMonth.getFullYear() === new Date(todayDate).getFullYear()
+      ) {
+        if (nexMonth.getMonth() + 1 === 1) {
+          curDate = new Date(nexMonth.getFullYear(), 0, 1);
+        } else {
+          curDate = new Date(nexMonth.getFullYear(), nexMonth.getMonth(), 1);
+        }
+
+        this.setState({
+          date: curDate,
+          displayedMonth: curDate.getMonth() + 1,
+          displayedYear: curDate.getFullYear(),
+          curSeletedDate: null,
+        });
+
+        console.log("otherMonthPageNum 3 : ", otherMonthPageNum);
+
+        /*************************************************/
+        for (const num in otherMonthPageNum) {
+          if (parseInt(otherMonthPageNum[num]) > apiCurPageNum) {
+            apiCurPageNum = parseInt(otherMonthPageNum[num]);
+            otherMonthPageNum = [];
+            otherMonthPageNum.push(apiCurPageNum);
+            break;
           }
+        }
 
-          this.setState({
-            date: curDate,
-            displayedMonth: curDate.getMonth() + 1,
-            displayedYear: curDate.getFullYear(),
-            curSeletedDate: 0,
-          });
+        console.log("otherMonthPageNum 4 : ", otherMonthPageNum);
 
-          /*************************************************/
-          for (const num in otherMonthPageNum) {
-            if (parseInt(otherMonthPageNum[num]) > apiCurPageNum) {
-              apiCurPageNum = parseInt(otherMonthPageNum[num]);
-              otherMonthPageNum = [];
-              otherMonthPageNum.push(apiCurPageNum);
-              break;
-            }
+        let checkOnce = 0;
+        pageNumCopy = apiCurPageNum;
+        this.setState({ iotItems: [] });
+
+        if (pageNumCopy > 0) {
+          if (!this.state.loading) {
+            this.setState({ loading: true });
           }
+        }
 
-          let checkOnce = 0;
-          pageNumCopy = apiCurPageNum;
-          this.setState({ iotItems: [] });
-
-          if (pageNumCopy > 0) {
-            if (!this.state.loading) {
-              this.setState({ loading: true });
-            }
-          }
-
-          while (pageNumCopy !== 0) {
-            if (otherMonthPageNum !== undefined) {
-              if (otherMonthPageNum.length > 0) {
-                checkOnce = checkOnce + 1;
-              } else {
-                checkOnce = 0;
-              }
+        while (pageNumCopy !== 0) {
+          if (otherMonthPageNum !== undefined) {
+            if (otherMonthPageNum.length > 0) {
+              checkOnce = checkOnce + 1;
             } else {
               checkOnce = 0;
             }
+          } else {
+            checkOnce = 0;
+          }
 
-            let itemData = await this.getApiDataPageWise(
-              apiCurPageNum,
-              otherMonthPageNum,
-              sessionStorage.getItem("deviceId"),
-              checkOnce
+          let itemData = await this.getApiDataPageWise(
+            apiCurPageNum,
+            otherMonthPageNum,
+            sessionStorage.getItem("deviceId"),
+            checkOnce
+          );
+
+          let getItemsData = getItemData(itemData);
+
+          getSelectedMonthData = getItemsData.filter(
+            (i) =>
+              new Date(i["timeStamp"]).getMonth() + 1 ===
+              this.state.date.getMonth() + 1
+          );
+
+          if (getSelectedMonthData.length === 0) {
+            pageNumCopy = 0;
+
+            sessionStorage.setItem("apiCurPageNum", apiCurPageNum);
+            sessionStorage.setItem(
+              "otherMonthPageNum",
+              JSON.stringify(otherMonthPageNum)
             );
 
-            let getItemsData = itemData.map((i) => {
-              return {
-                id: i.id,
-                deviceID: i.deviceID,
-                humidity: i.humidity,
-                roomtemp: i.roomtemp,
-                unitConsumption: i.unitConsumption,
-                timeStamp: new Date(i.timeStamp).toUTCString().substr(0, 25),
-                externalTemp: i.externalTemp,
-              };
-            });
+            this.setState({ iotItems: data, loading: false });
 
-            getSelectedMonthData = getItemsData.filter(
+            break;
+          } else {
+            getOtherMonthData = getItemsData.filter(
               (i) =>
-                new Date(i["timeStamp"]).getMonth() + 1 ===
+                new Date(i["timeStamp"]).getMonth() + 1 !==
                 this.state.date.getMonth() + 1
             );
 
-            if (getSelectedMonthData.length === 0) {
-              pageNumCopy = 0;
+            getOtherMonthData = getItemsData.filter(
+              (i) =>
+                new Date(i["timeStamp"]).getMonth() + 1 <
+                this.state.date.getMonth() + 1
+            );
 
-              sessionStorage.setItem("apiCurPageNum", apiCurPageNum);
-              sessionStorage.setItem(
-                "otherMonthPageNum",
-                JSON.stringify(otherMonthPageNum)
-              );
-
-              this.setState({ iotItems: data, loading: false });
-
-              break;
-            } else {
-              getOtherMonthData = getItemsData.filter(
-                (i) =>
-                  new Date(i["timeStamp"]).getMonth() + 1 !==
-                  this.state.date.getMonth() + 1
-              );
-
-              getOtherMonthData = getItemsData.filter(
-                (i) =>
-                  new Date(i["timeStamp"]).getMonth() + 1 <
-                  this.state.date.getMonth() + 1
-              );
-
-              if (getOtherMonthData.length > 0) {
-                if (!otherMonthPageNum.includes(apiCurPageNum)) {
-                  otherMonthPageNum.push(apiCurPageNum);
-                }
+            if (getOtherMonthData.length > 0) {
+              if (!otherMonthPageNum.includes(apiCurPageNum)) {
+                otherMonthPageNum.push(apiCurPageNum);
               }
-
-              apiCurPageNum = apiCurPageNum + 1;
-              data.push(getSelectedMonthData);
             }
+
+            apiCurPageNum = apiCurPageNum + 1;
+            data.push(getSelectedMonthData);
           }
         }
       }
+      // }
     };
 
     //Get previous month
@@ -588,8 +724,10 @@ class App extends Component {
             date: curDate,
             displayedMonth: curDate.getMonth() + 1,
             displayedYear: curDate.getFullYear(),
-            curSeletedDate: 0,
+            curSeletedDate: null,
           });
+
+          console.log("otherMonthPageNum 1 : ", otherMonthPageNum);
 
           /*************************************************/
           for (const num in otherMonthPageNum) {
@@ -600,6 +738,8 @@ class App extends Component {
               break;
             }
           }
+
+          console.log("otherMonthPageNum 2 : ", otherMonthPageNum);
 
           let checkOnce = 0;
           pageNumCopy = apiCurPageNum;
@@ -629,17 +769,7 @@ class App extends Component {
               checkOnce
             );
 
-            let getItemsData = itemData.map((i) => {
-              return {
-                id: i.id,
-                deviceID: i.deviceID,
-                humidity: i.humidity,
-                roomtemp: i.roomtemp,
-                unitConsumption: i.unitConsumption,
-                timeStamp: new Date(i.timeStamp).toUTCString().substr(0, 25),
-                externalTemp: i.externalTemp,
-              };
-            });
+            let getItemsData = getItemData(itemData);
 
             getSelectedMonthData = getItemsData.filter(
               (i) =>
@@ -656,7 +786,14 @@ class App extends Component {
                 JSON.stringify(otherMonthPageNum)
               );
 
-              this.setState({ iotItems: data, loading: false });
+              this.setState({
+                iotItems: data,
+                loading: false,
+                apiCurPageNum: sessionStorage.getItem("apiCurPageNum"),
+                otherMonthPageNum: JSON.parse(
+                  sessionStorage.getItem("otherMonthPageNum")
+                ),
+              });
 
               break;
             } else {
@@ -683,11 +820,73 @@ class App extends Component {
           }
         }
       }
+
+      let deviceIdCopy = sessionStorage.getItem("deviceId");
+
+      let pageNumForCurrentDate = await this.getApiData(
+        "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
+          deviceIdCopy +
+          "%22}&max_results=1440"
+      );
+
+      let curentData = await fetch(
+        "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
+          deviceIdCopy +
+          "%22}&max_results=1440&page=" +
+          pageNumForCurrentDate
+      );
+
+      let respData = await curentData.text();
+      let respText = respData.replaceAll("NaN", "0");
+      var apiJson = JSON.parse(respText);
+      var items = Object.entries(apiJson["_items"]);
+
+      var testData = [];
+      var dataToday = [];
+
+      items.map((item) => {
+        testData.push(item);
+      });
+
+      for (const d in testData) {
+        dataToday.push({
+          deviceID: testData[d][1]["Device_ID"],
+          humidity: testData[d][1]["Humidity"],
+          roomtemp: testData[d][1]["room_temp"],
+          timeStamp: testData[d][1]["Time_Stamp"],
+          externalTemp: testData[d][1]["External_temp"],
+          unitConsumption: testData[d][1]["unit_consumption"],
+        });
+      }
+
+      dataToday = dataToday.sort((a, b) => {
+        return (
+          new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
+        );
+      });
+
+      dataToday = dataToday
+        .filter(
+          (d) =>
+            new Date(d.timeStamp).setHours(0, 0, 0, 0) ===
+            new Date().setHours(0, 0, 0, 0)
+        )
+        .pop();
+
+      this.setState({ dataCurrent: dataToday, deviceIdCurrent: deviceIdCopy });
+
+      sessionStorage.setItem("deviceId", this.state.deviceIdCurrent);
+      sessionStorage.setItem("apiCurPageNum", this.state.apiCurPageNum);
+      sessionStorage.setItem(
+        "otherMonthPageNum",
+        JSON.stringify(otherMonthPageNum)
+      );
     };
 
     let outPut = "";
     let showSpinner = "";
     console.log("index rendered");
+
     // console.log("iotItems : ", this.state.iotItems);
 
     const firstDate = new Date(
@@ -763,7 +962,22 @@ class App extends Component {
 
     // if (this.state.iotOriginalData.length === 0) {
     if (sessionStorage.getItem("iotOriginalData") === 0) {
-      outPut = <p className="text-center">Loading... Please wait..</p>;
+      // outPut = <p className="text-center">Loading... Please wait..</p>;
+      outPut = (
+        <div id="content-wrapper" className="d-flex flex-column">
+          <div id="content">
+            <Temp
+              currentDateLastItemTemp={0}
+              deviceId={sessionStorage.getItem("deviceId")}
+            ></Temp>
+            <div className="container-fluid">
+              <p className="text-center">
+                No data to display !!... Please wait..
+              </p>
+            </div>
+          </div>
+        </div>
+      );
     } else {
       let iotData = [];
 
@@ -1079,148 +1293,40 @@ class App extends Component {
       }
 
       // iotDataPerMonth.map((result) => {
-      //   console.log(
-      //     new Date(new Date(result.date).toUTCString().substr(0, 25))
-      //   );
-      //   console.log(result.roomtemp);
+      //   console.log(new Date(result.date));
+      //   console.log(result.temp);
       // });
 
-      // console.log("showSpinner : ", this.state.loading);
-
       showSpinner = this.state.loading ? (
-        <div className="d-flex justify-content-center">
-          <div
-            className="spinner-border"
-            style={{
-              width: "3rem",
-              height: "3rem",
-              bottom: 350,
-              position: "relative",
-              color: "#6B8E23",
-            }}
-            role="status"
-          >
-            <span className="sr-only">Loading</span>
-          </div>
+        <div className="spinner-border" role="status">
+          <span className="sr-only">Loading</span>
         </div>
       ) : (
         ""
       );
 
-      outPut = (
-        <div className="row">
-          <div
-            style={{
-              height: 70,
-              padding: 7,
-            }}
-          >
-            <table>
-              <tbody>
-                <tr>
-                  <td
-                    className="wrapperBorder tempTdHeight"
-                    style={{
-                      borderRadius: 4,
-                      width: "35em",
-                      // height: "3.5em",
-                      paddingTop: "0.2em",
-                      paddingBottom: "0.2em",
-                      marginRight: 20,
+      let changeCal = "";
 
-                      display: "inline-block",
-                      backgroundColor: "#eeece7",
-                    }}
-                  >
-                    <Temp
-                      currentDateLastItemTemp={0}
-                      tempVal={"03"}
-                      current={1}
-                      externalTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem.externalTemp
-                          : 0
-                      }
-                    ></Temp>
-                  </td>
-                  <td
-                    className="wrapperBorder subWrapperShadow tempTdHeight"
-                    style={{ backgroundColor: "#eeece7" }}
-                  >
-                    <Temp
-                      currentDateLastItemTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem
-                          : 0
-                      }
-                      tempVal={"01"}
-                      current={0}
-                      externalTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem.externalTemp
-                          : 0
-                      }
-                    ></Temp>
-                  </td>
-                  <td
-                    className="wrapperBorder subWrapperShadow tempTdHeight"
-                    style={{ backgroundColor: "#eeece7" }}
-                  >
-                    <Temp
-                      currentDateLastItemTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem
-                          : 0
-                      }
-                      tempVal={"02"}
-                      current={0}
-                      externalTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem.externalTemp
-                          : 0
-                      }
-                    ></Temp>
-                  </td>
-                  <td
-                    className="wrapperBorder subWrapperShadow tempTdHeight"
-                    style={{ backgroundColor: "#eeece7" }}
-                  >
-                    <Temp
-                      currentDateLastItemTemp={
-                        currentDateLastItem !== undefined
-                          ? currentDateLastItem
-                          : 0
-                      }
-                      tempVal={"03"}
-                      current={0}
-                    ></Temp>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="col-md-5" style={{ paddingTop: 6, marginRight: 0 }}>
-            <table>
-              <tbody>
-                <tr>
-                  <td
-                    className="dropDownHeight"
-                    style={{ width: 160, paddingRight: 10 }}
-                  >
-                    <Select
-                      selectAc={this.selectAc}
-                      isLoading={this.state.loading}
-                    />
-                  </td>
-                  <td className="dropDownHeight" style={{ width: 160 }}>
-                    <SelectTemp
-                      selectTemp={this.selectTemp}
-                      isLoading={this.state.loading}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      if (this.state.iotData.length > 0) {
+        changeCal = (
+          <Calendar
+            date={this.state.date}
+            firstDate={firstDate}
+            lastDate={lastDate}
+            shiftDate={shiftDate}
+            getWeekOfMonth={getWeekOfMonth}
+            handlePrevious={handlePrevious}
+            handleNext={handleNext}
+            iotDataPerMonth={iotDataPerMonth}
+            iotData={currentSelectedMonthData}
+            barChartCalendarData={this.barChartCalendarData}
+            monthDays={monthDays}
+            tempType={this.state.selectTempVal}
+          />
+        );
+
+        if (this.state.type === "Monthly") {
+          changeCal = (
             <Calendar
               date={this.state.date}
               firstDate={firstDate}
@@ -1235,16 +1341,89 @@ class App extends Component {
               monthDays={monthDays}
               tempType={this.state.selectTempVal}
             />
-          </div>
-          <div className="col-md-7">
-            <PerDayTemp
-              barChartData={
-                this.state.curSeletedDate === null
-                  ? barChartData
-                  : this.state.curSeletedDate
+          );
+        } else if (this.state.type === "Weekly") {
+          changeCal = <div>Weekly data is not available !!</div>;
+        }
+      } else {
+        changeCal = <div>{showSpinner}</div>;
+      }
+
+      outPut = (
+        <div id="content-wrapper" className="d-flex flex-column">
+          <div id="content">
+            <Temp
+              currentDateLastItemTemp={
+                currentDateLastItem !== undefined
+                  ? currentDateLastItem
+                  : this.state.dataCurrent
               }
-              tempVal={this.state.selectTempVal}
-            ></PerDayTemp>
+              deviceId={
+                sessionStorage.getItem("deviceId") === null
+                  ? this.state.deviceIdCurrent
+                  : sessionStorage.getItem("deviceId")
+              }
+            ></Temp>
+            <div className="container-fluid">
+              <div className="row">
+                <div className="col-xl-8 col-lg-7">
+                  <div className="card shadow mb-4">
+                    <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                      <span className="m-0 font-weight-bold text-primary">
+                        Calendar
+                      </span>
+                      <span className="m-0 font-weight-bold text-primary">
+                        {this.state.type}
+                      </span>
+                    </div>
+
+                    <div className="card-body d-flex justify-content-center">
+                      {changeCal}
+                    </div>
+                  </div>
+                </div>
+                <div className="col-xl-4 col-lg-5">
+                  <div className="card shadow mb-4">
+                    <div className="card-body">
+                      <div className="row">
+                        <div className="col">
+                          <div className="row mt-2">
+                            <div className="col-md-8">
+                              <Select
+                                selectAc={this.selectAc}
+                                isLoading={this.state.loading}
+                              />
+                            </div>
+                          </div>
+                          <div className="row mt-4">
+                            <div className="col-md-10">
+                              <SelectTemp
+                                selectTemp={this.selectTemp}
+                                isLoading={this.state.loading}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="card shadow mb-4">
+                        <TempTable
+                          selTemp={this.state.selectTempVal}
+                          lastThirtyData={
+                            this.state.curSeletedDate === null
+                              ? barChartData
+                              : this.state.curSeletedDate
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -1252,33 +1431,14 @@ class App extends Component {
     // }
 
     var element = (
-      <div>
-        <NavBar />
-        <div className="float-container">{outPut}</div>
-        {showSpinner}
+      <div id="wrapper">
+        <NavBar refreshPage={refreshPage} calType={this.calType} />
+        {outPut}
       </div>
     );
 
     return <React.Fragment>{element}</React.Fragment>;
-    // return (
-    //   <Router>
-    //     <Routes>
-    //       <Route
-    //         exact
-    //         path="/dash"
-    //         render={() => <React.Fragment>{test}</React.Fragment>}
-    //       />
-    //     </Routes>
-    //   </Router>
-    // );
   }
 }
-
-// ReactDOM.render(
-//   <BrowserRouter>
-//     <App />
-//   </BrowserRouter>,
-//   document.getElementById("root")
-// );
 
 export default App;
