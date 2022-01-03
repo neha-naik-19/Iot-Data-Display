@@ -1,11 +1,10 @@
 import React from "react";
 
-const temp = ({ currentDateLastItemTemp, deviceId }) => {
-  let loading = true;
+const temp = ({ currentDateLastItemTemp, deviceId, isLoading }) => {
   let deviceIdCopy = "";
 
   if (deviceId === "") {
-    deviceIdCopy = loading ? (
+    deviceIdCopy = isLoading ? (
       <div className="spinner-border spinner-border-sm" role="status">
         <span className="sr-only">Loading</span>
       </div>
@@ -13,7 +12,19 @@ const temp = ({ currentDateLastItemTemp, deviceId }) => {
       ""
     );
   } else {
-    deviceIdCopy = [...deviceId];
+    deviceIdCopy = deviceId;
+  }
+
+  if (isLoading) {
+    deviceIdCopy = "";
+
+    if (deviceIdCopy === "") {
+      deviceIdCopy = (
+        <div className="spinner-border spinner-border-sm" role="status">
+          <span className="sr-only">Loading</span>
+        </div>
+      );
+    }
   }
 
   return (

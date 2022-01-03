@@ -7,6 +7,7 @@ import Calendar from "./components/calendar";
 import NavBar from "./components/navbar";
 import Temp from "./components/temp";
 import TempTable from "./components/tempTable";
+import WeekCalendar from "./components/weekCalendar";
 
 import moment from "moment";
 
@@ -29,6 +30,7 @@ class App extends Component {
     deviceIdCurrent: "",
     apiCurPageNum: [],
     otherMonthPageNum: [],
+    onlyOnePrevMonth: false,
   };
 
   async componentDidMount() {
@@ -49,8 +51,12 @@ class App extends Component {
           "%22}&max_results=1440"
       );
 
+      sessionStorage.clear();
+
+      /*****************************************/
+
       // let resp = await fetch(
-      //   "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22D250AC02%22}&max_results=1440&page=30"
+      //   "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22D250AC02%22}&max_results=1440&page=43"
       // );
       // let respData = await resp.text();
       // let respText = respData.replaceAll("NaN", "0");
@@ -110,7 +116,9 @@ class App extends Component {
       //   );
       // });
 
-      // console.log("28-12-2021 : ", itemDataToday);
+      // console.log("03-01-2022 : ", itemDataToday);
+
+      /*****************************************/
 
       let pageNumCopy = pageNum;
 
@@ -155,7 +163,10 @@ class App extends Component {
 
           getOtherMonthData = getItemsData.filter(
             (i) =>
-              new Date(i["timeStamp"]).getMonth() + 1 <
+              (new Date(i["timeStamp"]).getMonth() + 1 === 12 &&
+              this.state.date.getMonth() + 1 === 1
+                ? 0
+                : new Date(i["timeStamp"]).getMonth() + 1) <
               this.state.date.getMonth() + 1
           );
 
@@ -193,8 +204,6 @@ class App extends Component {
         linksData = value;
       }
     });
-
-    sessionStorage.clear();
 
     if (linksData !== "") {
       linksData = Object.entries(apiJson["_links"]["last"]);
@@ -380,6 +389,7 @@ class App extends Component {
           this.setState({
             iotItems: data,
             loading: false,
+            onlyOnePrevMonth: false,
           });
           break;
         } else {
@@ -391,7 +401,10 @@ class App extends Component {
 
           getOtherMonthData = getItemsData.filter(
             (i) =>
-              new Date(i["timeStamp"]).getMonth() + 1 <
+              (new Date(i["timeStamp"]).getMonth() + 1 === 12 &&
+              this.state.date.getMonth() + 1 === 1
+                ? 0
+                : new Date(i["timeStamp"]).getMonth() + 1) <
               this.state.date.getMonth() + 1
           );
 
@@ -403,8 +416,6 @@ class App extends Component {
           data.push(getSelectedMonthData);
         }
       }
-
-      console.log("iotItems : ", this.state.iotItems);
 
       //get current date full data
       if (this.state.iotItems.length > 0) {
@@ -569,7 +580,6 @@ class App extends Component {
         sessionStorage.getItem("otherMonthPageNum")
       );
 
-      // if (!this.state.loading) {
       var nexMonth = new Date(
         this.state.date.getFullYear(),
         this.state.date.getMonth() + 1,
@@ -578,8 +588,16 @@ class App extends Component {
 
       let todayDate = new Date();
 
+      let prevMonth = 0;
+
+      if (this.state.date.getMonth() + 2 > 12) {
+        prevMonth = 0;
+      } else {
+        prevMonth = this.state.date.getMonth() + 2;
+      }
+
       if (
-        this.state.date.getMonth() + 2 <= new Date(todayDate).getMonth() + 1 &&
+        prevMonth <= new Date(todayDate).getMonth() + 1 &&
         nexMonth.getFullYear() === new Date(todayDate).getFullYear()
       ) {
         if (nexMonth.getMonth() + 1 === 1) {
@@ -593,9 +611,8 @@ class App extends Component {
           displayedMonth: curDate.getMonth() + 1,
           displayedYear: curDate.getFullYear(),
           curSeletedDate: null,
+          onlyOnePrevMonth: false,
         });
-
-        console.log("otherMonthPageNum 3 : ", otherMonthPageNum);
 
         /*************************************************/
         for (const num in otherMonthPageNum) {
@@ -606,8 +623,6 @@ class App extends Component {
             break;
           }
         }
-
-        console.log("otherMonthPageNum 4 : ", otherMonthPageNum);
 
         let checkOnce = 0;
         pageNumCopy = apiCurPageNum;
@@ -681,7 +696,6 @@ class App extends Component {
           }
         }
       }
-      // }
     };
 
     //Get previous month
@@ -696,191 +710,183 @@ class App extends Component {
         sessionStorage.getItem("otherMonthPageNum")
       );
 
-      if (!this.state.loading) {
-        var prevMonth = new Date(
-          this.state.date.getFullYear(),
-          this.state.date.getMonth() - 1,
-          1
-        );
+      var prevMonth = new Date(
+        this.state.date.getFullYear(),
+        this.state.date.getMonth() - 1,
+        1
+      );
 
-        let todayDate = new Date();
+      let todayDate = new Date();
 
-        if (prevMonth.getMonth() + 1 >= todayDate.getMonth()) {
-          if (prevMonth.getMonth() + 1 === 12) {
-            curDate = new Date(
-              prevMonth.getFullYear(),
-              prevMonth.getMonth(),
-              1
-            );
-          } else {
-            curDate = new Date(
-              prevMonth.getFullYear(),
-              prevMonth.getMonth(),
-              1
-            );
+      if (!this.state.onlyOnePrevMonth) {
+        if (prevMonth.getMonth() + 1 === 12) {
+          curDate = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), 1);
+        } else {
+          curDate = new Date(prevMonth.getFullYear(), prevMonth.getMonth(), 1);
+        }
+
+        this.setState({
+          date: curDate,
+          displayedMonth: curDate.getMonth() + 1,
+          displayedYear: curDate.getFullYear(),
+          curSeletedDate: null,
+          onlyOnePrevMonth: true,
+        });
+
+        /*************************************************/
+        for (const num in otherMonthPageNum) {
+          if (parseInt(otherMonthPageNum[num]) < apiCurPageNum) {
+            apiCurPageNum = parseInt(otherMonthPageNum[num]);
+            otherMonthPageNum = [];
+            otherMonthPageNum.push(apiCurPageNum);
+            break;
           }
+        }
 
-          this.setState({
-            date: curDate,
-            displayedMonth: curDate.getMonth() + 1,
-            displayedYear: curDate.getFullYear(),
-            curSeletedDate: null,
-          });
+        let checkOnce = 0;
+        pageNumCopy = apiCurPageNum;
+        this.setState({ iotItems: [] });
 
-          console.log("otherMonthPageNum 1 : ", otherMonthPageNum);
-
-          /*************************************************/
-          for (const num in otherMonthPageNum) {
-            if (parseInt(otherMonthPageNum[num]) < apiCurPageNum) {
-              apiCurPageNum = parseInt(otherMonthPageNum[num]);
-              otherMonthPageNum = [];
-              otherMonthPageNum.push(apiCurPageNum);
-              break;
-            }
+        if (pageNumCopy > 0) {
+          if (!this.state.loading) {
+            this.setState({ loading: true });
           }
+        }
 
-          console.log("otherMonthPageNum 2 : ", otherMonthPageNum);
-
-          let checkOnce = 0;
-          pageNumCopy = apiCurPageNum;
-          this.setState({ iotItems: [] });
-
-          if (pageNumCopy > 0) {
-            if (!this.state.loading) {
-              this.setState({ loading: true });
-            }
-          }
-
-          while (pageNumCopy !== 0) {
-            if (otherMonthPageNum !== undefined) {
-              if (otherMonthPageNum.length > 0) {
-                checkOnce = checkOnce + 1;
-              } else {
-                checkOnce = 0;
-              }
+        while (pageNumCopy !== 0) {
+          if (otherMonthPageNum !== undefined) {
+            if (otherMonthPageNum.length > 0) {
+              checkOnce = checkOnce + 1;
             } else {
               checkOnce = 0;
             }
+          } else {
+            checkOnce = 0;
+          }
 
-            let itemData = await this.getApiDataPageWise(
-              apiCurPageNum,
-              otherMonthPageNum,
-              sessionStorage.getItem("deviceId"),
-              checkOnce
+          let itemData = await this.getApiDataPageWise(
+            apiCurPageNum,
+            otherMonthPageNum,
+            sessionStorage.getItem("deviceId"),
+            checkOnce
+          );
+
+          let getItemsData = getItemData(itemData);
+
+          getSelectedMonthData = getItemsData.filter(
+            (i) =>
+              new Date(i["timeStamp"]).getMonth() + 1 ===
+              this.state.date.getMonth() + 1
+          );
+
+          if (getSelectedMonthData.length === 0) {
+            pageNumCopy = 0;
+
+            sessionStorage.setItem("apiCurPageNum", apiCurPageNum);
+            sessionStorage.setItem(
+              "otherMonthPageNum",
+              JSON.stringify(otherMonthPageNum)
             );
 
-            let getItemsData = getItemData(itemData);
+            this.setState({
+              iotItems: data,
+              loading: false,
+              apiCurPageNum: sessionStorage.getItem("apiCurPageNum"),
+              otherMonthPageNum: JSON.parse(
+                sessionStorage.getItem("otherMonthPageNum")
+              ),
+            });
 
-            getSelectedMonthData = getItemsData.filter(
+            console.log("otherMonthPageNum ", otherMonthPageNum);
+
+            break;
+          } else {
+            getOtherMonthData = getItemsData.filter(
               (i) =>
-                new Date(i["timeStamp"]).getMonth() + 1 ===
+                new Date(i["timeStamp"]).getMonth() + 1 !==
                 this.state.date.getMonth() + 1
             );
 
-            if (getSelectedMonthData.length === 0) {
-              pageNumCopy = 0;
+            getOtherMonthData = getItemsData.filter(
+              (i) =>
+                new Date(i["timeStamp"]).getMonth() + 1 <
+                this.state.date.getMonth() + 1
+            );
 
-              sessionStorage.setItem("apiCurPageNum", apiCurPageNum);
-              sessionStorage.setItem(
-                "otherMonthPageNum",
-                JSON.stringify(otherMonthPageNum)
-              );
-
-              this.setState({
-                iotItems: data,
-                loading: false,
-                apiCurPageNum: sessionStorage.getItem("apiCurPageNum"),
-                otherMonthPageNum: JSON.parse(
-                  sessionStorage.getItem("otherMonthPageNum")
-                ),
-              });
-
-              break;
-            } else {
-              getOtherMonthData = getItemsData.filter(
-                (i) =>
-                  new Date(i["timeStamp"]).getMonth() + 1 !==
-                  this.state.date.getMonth() + 1
-              );
-
-              getOtherMonthData = getItemsData.filter(
-                (i) =>
-                  new Date(i["timeStamp"]).getMonth() + 1 <
-                  this.state.date.getMonth() + 1
-              );
-
-              if (getOtherMonthData.length > 0) {
-                otherMonthPageNum.push(apiCurPageNum);
-              }
-
-              apiCurPageNum = apiCurPageNum - 1;
-              pageNumCopy = apiCurPageNum;
-              data.push(getSelectedMonthData);
+            if (getOtherMonthData.length > 0) {
+              otherMonthPageNum.push(apiCurPageNum);
             }
+
+            apiCurPageNum = apiCurPageNum - 1;
+            pageNumCopy = apiCurPageNum;
+            data.push(getSelectedMonthData);
           }
         }
-      }
 
-      let deviceIdCopy = sessionStorage.getItem("deviceId");
+        let deviceIdCopy = sessionStorage.getItem("deviceId");
 
-      let pageNumForCurrentDate = await this.getApiData(
-        "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
-          deviceIdCopy +
-          "%22}&max_results=1440"
-      );
-
-      let curentData = await fetch(
-        "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
-          deviceIdCopy +
-          "%22}&max_results=1440&page=" +
-          pageNumForCurrentDate
-      );
-
-      let respData = await curentData.text();
-      let respText = respData.replaceAll("NaN", "0");
-      var apiJson = JSON.parse(respText);
-      var items = Object.entries(apiJson["_items"]);
-
-      var testData = [];
-      var dataToday = [];
-
-      items.map((item) => {
-        testData.push(item);
-      });
-
-      for (const d in testData) {
-        dataToday.push({
-          deviceID: testData[d][1]["Device_ID"],
-          humidity: testData[d][1]["Humidity"],
-          roomtemp: testData[d][1]["room_temp"],
-          timeStamp: testData[d][1]["Time_Stamp"],
-          externalTemp: testData[d][1]["External_temp"],
-          unitConsumption: testData[d][1]["unit_consumption"],
-        });
-      }
-
-      dataToday = dataToday.sort((a, b) => {
-        return (
-          new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
+        let pageNumForCurrentDate = await this.getApiData(
+          "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
+            deviceIdCopy +
+            "%22}&max_results=1440"
         );
-      });
 
-      dataToday = dataToday
-        .filter(
-          (d) =>
-            new Date(d.timeStamp).setHours(0, 0, 0, 0) ===
-            new Date().setHours(0, 0, 0, 0)
-        )
-        .pop();
+        let curentData = await fetch(
+          "http://10.1.19.25:5000/energygrid1?where={%22Device_ID%22:%22" +
+            deviceIdCopy +
+            "%22}&max_results=1440&page=" +
+            pageNumForCurrentDate
+        );
 
-      this.setState({ dataCurrent: dataToday, deviceIdCurrent: deviceIdCopy });
+        let respData = await curentData.text();
+        let respText = respData.replaceAll("NaN", "0");
+        var apiJson = JSON.parse(respText);
+        var items = Object.entries(apiJson["_items"]);
 
-      sessionStorage.setItem("deviceId", this.state.deviceIdCurrent);
-      sessionStorage.setItem("apiCurPageNum", this.state.apiCurPageNum);
-      sessionStorage.setItem(
-        "otherMonthPageNum",
-        JSON.stringify(otherMonthPageNum)
-      );
+        var testData = [];
+        var dataToday = [];
+
+        items.map((item) => {
+          testData.push(item);
+        });
+
+        for (const d in testData) {
+          dataToday.push({
+            deviceID: testData[d][1]["Device_ID"],
+            humidity: testData[d][1]["Humidity"],
+            roomtemp: testData[d][1]["room_temp"],
+            timeStamp: testData[d][1]["Time_Stamp"],
+            externalTemp: testData[d][1]["External_temp"],
+            unitConsumption: testData[d][1]["unit_consumption"],
+          });
+        }
+
+        dataToday = dataToday.sort((a, b) => {
+          return (
+            new Date(a.timeStamp).getTime() - new Date(b.timeStamp).getTime()
+          );
+        });
+
+        dataToday = dataToday
+          .filter(
+            (d) =>
+              new Date(d.timeStamp).setHours(0, 0, 0, 0) ===
+              new Date().setHours(0, 0, 0, 0)
+          )
+          .pop();
+
+        this.setState({
+          dataCurrent: dataToday,
+          deviceIdCurrent: deviceIdCopy,
+        });
+
+        sessionStorage.setItem("deviceId", this.state.deviceIdCurrent);
+        sessionStorage.setItem("apiCurPageNum", this.state.apiCurPageNum);
+        sessionStorage.setItem(
+          "otherMonthPageNum",
+          JSON.stringify(otherMonthPageNum)
+        );
+      }
     };
 
     let outPut = "";
@@ -1307,24 +1313,7 @@ class App extends Component {
 
       let changeCal = "";
 
-      if (this.state.iotData.length > 0) {
-        changeCal = (
-          <Calendar
-            date={this.state.date}
-            firstDate={firstDate}
-            lastDate={lastDate}
-            shiftDate={shiftDate}
-            getWeekOfMonth={getWeekOfMonth}
-            handlePrevious={handlePrevious}
-            handleNext={handleNext}
-            iotDataPerMonth={iotDataPerMonth}
-            iotData={currentSelectedMonthData}
-            barChartCalendarData={this.barChartCalendarData}
-            monthDays={monthDays}
-            tempType={this.state.selectTempVal}
-          />
-        );
-
+      if (this.state.iotData.length > 0 && !this.state.loading) {
         if (this.state.type === "Monthly") {
           changeCal = (
             <Calendar
@@ -1344,6 +1333,7 @@ class App extends Component {
           );
         } else if (this.state.type === "Weekly") {
           changeCal = <div>Weekly data is not available !!</div>;
+          // <WeekCalendar></WeekCalendar>;
         }
       } else {
         changeCal = <div>{showSpinner}</div>;
@@ -1363,6 +1353,7 @@ class App extends Component {
                   ? this.state.deviceIdCurrent
                   : sessionStorage.getItem("deviceId")
               }
+              isLoading={this.state.loading}
             ></Temp>
             <div className="container-fluid">
               <div className="row">

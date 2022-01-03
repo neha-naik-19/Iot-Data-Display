@@ -4,6 +4,7 @@
   "homepage": ".",
   "private": true,
   "dependencies": {
+    "@remotelock/react-week-scheduler": "^3.5.8",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -34,6 +35,7 @@
     "react-slick": "^0.28.1",
     "react-spinner-timer": "^1.0.5",
     "react-tooltip": "^4.2.21",
+    "react-week-calendar": "^0.1.3",
     "web-vitals": "^1.1.2",
     "xtypejs": "^0.7.1"
   },
