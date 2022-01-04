@@ -307,9 +307,9 @@ a {
 }
 
 .react-calendar-heatmap .react-calendar-heatmap-small-text {
-  font-size: 1.9px;
-  font-family: Arial;
-  fill: #00008b;
+  font-size: 1.9px !important;
+  font-family: Arial !important;
+  fill: #00008b !important;
 }
 
 thead th {
