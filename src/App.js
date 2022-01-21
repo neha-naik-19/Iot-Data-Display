@@ -797,8 +797,6 @@ class App extends Component {
               ),
             });
 
-            console.log("otherMonthPageNum ", otherMonthPageNum);
-
             break;
           } else {
             getOtherMonthData = getItemsData.filter(
@@ -1070,6 +1068,7 @@ class App extends Component {
           //calculating the room temp. average on each day
           let preDt = "";
           let iotDataAvg = 0;
+          let iotDataAvgCopy = 1;
           let iotRoomTemp = 0;
           let unitConsumption = 0;
           let humidity = 0;
@@ -1092,10 +1091,18 @@ class App extends Component {
             );
 
             if (
-              new Date(preDt).setHours(0, 0, 0, 0) ===
-              new Date(iotDt).setHours(0, 0, 0, 0)
+              // new Date(preDt).setHours(0, 0, 0, 0) ===
+              // new Date(iotDt).setHours(0, 0, 0, 0)
+              moment(preDt).format("YYYY-MM-DD") ===
+              moment(iotDt).format("YYYY-MM-DD")
             ) {
+              if (iotDataAvg === 1) {
+                iotDataAvgCopy = 1;
+              }
+
               iotDataAvg = iotDataAvg + 1;
+              iotDataAvgCopy = iotDataAvg;
+
               iotRoomTemp =
                 parseFloat(iotRoomTemp) +
                 parseFloat(iotDataCheckToDisplayOnCalendar[i]["roomtemp"]);
@@ -1115,8 +1122,10 @@ class App extends Component {
             } else {
               if (
                 preDt != "" &&
-                new Date(preDt).setHours(0, 0, 0, 0) !==
-                  new Date(iotDt).setHours(0, 0, 0, 0)
+                // new Date(preDt).setHours(0, 0, 0, 0) !==
+                //   new Date(iotDt).setHours(0, 0, 0, 0)
+                moment(preDt).format("YYYY-MM-DD") !==
+                  moment(iotDt).format("YYYY-MM-DD")
               ) {
                 var object = {
                   id: iotDataCheckToDisplayOnCalendar[i - 1]["id"],
@@ -1148,6 +1157,13 @@ class App extends Component {
 
               preDt = iotDt;
             }
+          }
+
+          if (
+            moment(preDt).format("YYYY-MM-DD") !==
+            moment(iotDt).format("YYYY-MM-DD")
+          ) {
+            iotDataAvgCopy = 1;
           }
 
           //getting the last day room temp. average calculation which has not included in above loop
@@ -1251,7 +1267,6 @@ class App extends Component {
           return dataObject;
         }
 
-        //neha
         let newData = [];
 
         for (var i = 0; i < monthDays.length; i++) {
@@ -1332,8 +1347,12 @@ class App extends Component {
             />
           );
         } else if (this.state.type === "Weekly") {
-          changeCal = <div>Weekly data is not available !!</div>;
-          // <WeekCalendar></WeekCalendar>;
+          changeCal = (
+            <WeekCalendar
+              ioMonthlyData={currentSelectedMonthData}
+              tempVal={this.state.selectTempVal}
+            ></WeekCalendar>
+          );
         }
       } else {
         changeCal = <div>{showSpinner}</div>;
